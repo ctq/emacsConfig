@@ -48,7 +48,7 @@
       (cabins/set-monospaced-font "Ubuntu Mono" "华文细黑" 13 14))
   (if *is-mac*
       ;; font setting for macOS platform
-      (cabins/set-monospaced-font "Ubuntu Mono" "华文细黑" 13 14))
+      (cabins/set-monospaced-font "Ubuntu Mono" "华文细黑" 23 24))
   (if *is-linux*
       ;; font setting for GNU/Linux platform
       (cabins/set-monospaced-font "Ubuntu Mono" "华文细黑" 13 14))
