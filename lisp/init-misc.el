@@ -32,7 +32,7 @@
 (use-package emacs
   :unless *is-windows*
   :init
-  (setq display-line-numbers-type 'relative) ;relative, visual
+  (setq display-line-numbers-type t) ;relative, visual
   (global-display-line-numbers-mode t))
 
 
