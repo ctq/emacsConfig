@@ -15,6 +15,7 @@
          (go-mode . lsp-deferred)
          (java-mode . lsp-deferred)
          (js-mode . lsp-deferred)
+         (rust-mode . lsp-deferred)
          (web-mode . lsp-deferred)
          (vue-mode . lsp-deferred)
          (html-mode . lsp-deferred))
@@ -24,6 +25,7 @@
               lsp-auto-guess-root nil
               lsp-enable-snippet t
               lsp-modeline-diagnostics-enable t
+              lsp-modeline-diagnostics-scope :workspace ;; workspace/global/file
               lsp-idle-delay 0.500
               lsp-completion-provider :capf)
   :config
@@ -36,21 +38,26 @@
 (use-package lsp-ui
   :after lsp-mode
   :commands lsp-ui-mode
-  :hook (lsp-mode . lsp-ui-mode)
+  :hook ((lsp-mode . lsp-ui-mode)
+         (lsp-ui-mode . lsp-modeline-code-actions-mode)
+         (lsp-ui-mode . lsp-ui-peek-mode))
   :init (setq lsp-ui-doc-enable t
               lsp-ui-doc-use-webkit nil
               lsp-ui-doc-delay .3
               lsp-ui-doc-include-signature t
-              lsp-ui-doc-position 'bottom ;; top/bottom/at-point
-              lsp-eldoc-enable-hover nil ;; Disable eldoc displays in minibuffer
-              lsp-ui-sideline-enable t
-              lsp-ui-sideline-show-hover t
+              lsp-ui-doc-position 'at-point ;; top/bottom/at-point
+              lsp-eldoc-enable-hover t ;; eldoc displays in minibuffer
+              lsp-ui-sideline-enable nil
+              lsp-ui-sideline-show-hover nil
               lsp-ui-sideline-show-code-actions t
               lsp-ui-sideline-show-diagnostics t
               lsp-ui-sideline-ignore-duplicate t
+              lsp-modeline-code-actions-segments '(count name)
               lsp-headerline-breadcrumb-enable t)
   :config
   (setq lsp-ui-flycheck-enable nil)
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
   (treemacs-resize-icons 14))
 
 
@@ -67,7 +74,6 @@
          (python-mode . (lambda() (require 'dap-python)))
          (go-mode . (lambda() (require 'dap-go)))
          (java-mode . (lambda() (require 'dap-java)))))
-
 
 ;; Install use-package if not already installed
 (unless (package-installed-p 'use-package)
@@ -86,7 +92,7 @@
 ;; Enable scala-mode for highlighting, indentation and motion commands
 (use-package scala-mode
   :interpreter
-    ("scala" . scala-mode))
+  ("scala" . scala-mode))
 
 ;; Enable sbt mode for executing sbt commands
 (use-package sbt-mode
@@ -100,7 +106,8 @@
    minibuffer-local-completion-map)
    ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
    (setq sbt:program-options '("-Dsbt.supershell=false"))
-)
+   )
+
 
 ;; Enable nice rendering of diagnostics like compile errors.
 (use-package flycheck
@@ -131,12 +138,9 @@
 (use-package posframe
   ;; Posframe is a pop-up tool that must be manually installed for dap-mode
   )
-(use-package dap-mode
-  :hook
-  (lsp-mode . dap-mode)
-  (lsp-mode . dap-ui-mode)
-  )
+
+
+
 
 (provide 'init-lsp)
-
 ;;; init-lsp.el ends here

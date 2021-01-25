@@ -33,9 +33,10 @@
       auto-save-default nil)
 
 ;; Adjust garbage collection thresholds during startup
-(setq-default frame-title-format '("%f"))
+(setq-default frame-title-format '("%b"))
 
 (setq inhibit-startup-screen t)
+
 (setq initial-scratch-message ";; Time to enjoy emacs!\n")
 
 ;; I don't like the bell ring

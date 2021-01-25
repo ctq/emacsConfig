@@ -1,28 +1,20 @@
 ;;; init-package --- initialize the plugins
-
-;;; Commentary:
-;;; (c)Cabins, github.com/cabins/.emacs.d
-
+;;; Commentary: (c)Cabins, github.com/cabins/.emacs.d
 ;;; Code:
 
-;; ******************** PART1 benchmark(Optional) ********************
+;; ******************** benchmark (Optional) ********************
 ;; Settings for benchmark package
 (use-package benchmark-init
   :init (benchmark-init/activate)
   :hook (after-init . benchmark-init/deactivate))
 
-
-
-
-;; ******************** PART2 shell & environments ********************
 ;; Settings for org mode and load config from org file
 (use-package org
   ;; :init (setq org-startup-indented t)
   :config
   (setq org-startup-indented t
 	    org-todo-keywords '((sequence "TODO" "DOING" "DONE"))
-	    org-todo-keyword-faces '(("DOING" . "blue")))
-  )
+	    org-todo-keyword-faces '(("DOING" . "blue"))))
 
 ;; Settings for exec-path-from-shell
 (use-package exec-path-from-shell
@@ -30,31 +22,9 @@
   :if (memq window-system '(mac ns x))
   :init (exec-path-from-shell-initialize))
 
-
-
-
-;; ******************** PART3 editing ********************
-;; Settings for C-a behavior
-(use-package crux
-  :bind (("C-a" . crux-move-beginning-of-line)
-         ("C-c ^" . crux-top-join-line)
-	     ("C-," . crux-find-user-init-file)
-         ("C-S-d" . crux-duplicate-current-line-or-region)
-         ("C-S-k" . crux-smart-kill-line))) ; We can use C-S-<Backspace> instead.
-
-;; Hungry Delete - delete multi spaces with one <delete> key
-(use-package hungry-delete
-  :bind (("C-c DEL" . hungry-delete-backward)
-         ("C-c d" . hungry-delete-forward)))
-
-;; drag-stuff - move lines up/down
-(use-package drag-stuff
-  :bind (("<M-up>". drag-stuff-up)
-         ("<M-down>" . drag-stuff-down)))
-
 ;; Settings for company
 (use-package company
-  :diminish (company-mode " Com.")
+  :diminish (company-mode " Cmp.")
   :defines (company-dabbrev-ignore-case company-dabbrev-downcase)
   :hook (after-init . global-company-mode)
   :config (setq company-dabbrev-code-everywhere t
@@ -70,67 +40,32 @@
 		        company-idle-delay 0
 		        company-echo-delay 0
 		        company-tooltip-offset-display 'scrollbar
-		        company-begin-commands '(self-insert-command)))
-
-;; (use-package company-quickhelp
-;;   :hook (prog-mode . company-quickhelp-mode)
-;;   :init (setq company-quickhelp-delay 0.3))
+		        company-begin-commands '(self-insert-command))
+  (eval-after-load 'company
+    '(add-to-list 'company-backends
+                  '(company-abbrev company-yasnippet company-capf))))
 
 ;; Better sorting and filtering
 (use-package company-prescient
   :init (company-prescient-mode 1))
 
+;; Use ido instead of ivy & counsel & swiper
+;; They are great! But I want cleaner.
+(use-package ido
+  :defer nil
+  :init
+  (setq ido-enable-flex-matching t
+        ido-everywhere t
+        ido-use-filename-at-point t)
+  (ido-mode t)
+  (if (< emacs-major-version 27)
+      (icomplete-mode t)
+    (fido-mode t)))
 
-
-;; ******************** PART4 searching ********************
-;; Settings for ivy & counsel & swiper
-(use-package ivy
-  :defer 1
-  :demand
-  :diminish
-  :hook (after-init . ivy-mode)
-  :config (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t
-        ivy-initial-inputs-alist nil
-        ivy-count-format "%d/%d "
-        enable-recursive-minibuffers t
-        ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
-
-(use-package ivy-rich
-  :hook (after-init . ivy-rich-mode))
-
-(use-package counsel
-  :after (ivy)
-  :bind (("M-x" . counsel-M-x)
-	     ("C-h b" . counsel-descbinds)
-	     ("C-h f" . counsel-describe-function)
-	     ("C-h v" . counsel-describe-variable)
-         ("C-x C-f" . counsel-find-file)
-         ("C-c f" . counsel-recentf)
-         ("C-c g" . counsel-git)))
-
-(use-package swiper
-  :after ivy
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper-isearch-backward))
-  :config (setq swiper-action-recenter t
-                swiper-include-line-number-in-search t))
-
-
-
-
-;; ******************** PART5 basic development ********************
 ;; Settings for which-key - suggest next key
 (use-package which-key
   :defer nil
   :config (which-key-mode))
-
-;; Settings for magit
-;; I quit using magit on windows, 'cause its performance sucks
-;; I use emacs builtin vc & cli-git on windows instead
-(use-package magit
-  :unless *is-windows*
-  :bind ("C-x g" . magit-status))
 
 ;; Settings for yasnippet
 (use-package yasnippet
@@ -142,6 +77,7 @@
 				                  "snippets"))
   (use-package yasnippet-snippets
     :after yasnippet)
+
   (use-package auto-yasnippet
     :bind (("C-o" . aya-open-line)
            ("H-w" . aya-create)
@@ -155,7 +91,7 @@
   :hook (after-init . projectile-mode)
   :bind-keymap ("C-c p" . projectile-command-map))
 
-;; Enable flymake on default
+;; Enable flymake on default, which is built in emacs
 (use-package flymake
   :ensure nil
   :diminish (flymake " Flym.")
@@ -170,36 +106,7 @@
 
 (use-package rainbow-delimiters
   :diminish
-  :hook (prog-mode . rainbow-delimiters-mode)
-  ;; :config
-  ;; (set-face-foreground 'rainbow-delimiters-depth-1-face "red")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-2-face "pink")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-3-face "orange")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-4-face "yellow")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-5-face "purple")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-6-face "green")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-7-face "blue")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-8-face "brown")
-  ;; (set-face-foreground 'rainbow-delimiters-depth-9-face "gray")
-  ;; (set-face-bold 'rainbow-delimiters-depth-1-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-2-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-3-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-4-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-5-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-6-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-7-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-8-face nil)
-  ;; (set-face-bold 'rainbow-delimiters-depth-9-face nil)
-)
-
-
-;; ******************** PART6 Emacs Optimize ********************
-;; Settings for jump windows, use M-NUM to switch
-(use-package ace-window
-  :bind (("M-o" . 'ace-window)))
-
-;; Restart emacs
-(use-package restart-emacs)
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 ;; auto update packages
 (use-package auto-package-update
@@ -208,7 +115,7 @@
         auto-package-update-hide-results t)
   (auto-package-update-maybe))
 
-;; Beacon mode
+;; Beacon mode - highlight the line where your cursor is
 (use-package beacon
   :unless *is-windows*
   :hook (after-init . beacon-mode))
@@ -216,15 +123,22 @@
 (use-package keycast
   :commands keycast-mode)
 
+;; Make info docs colorful, not good at displaying some fonts
 (use-package info-colors
   :unless *is-windows*
   :hook (Info-selection . info-colors-fontify-node))
 
+;; Indent grade guide line
 (use-package indent-guide
-  :hook (after-init-hook . indent-guide-global-mode))
+  :hook (after-init . indent-guide-global-mode))
 
 (use-package paren
   :config (show-paren-mode 1))
+
+;; Settings for electric-pair
+(use-package electric
+  :hook ((after-init . electric-indent-mode)
+	     (prog-mode . electric-pair-mode)))
 
 (provide 'init-package)
 ;;; init-package.el ends here
